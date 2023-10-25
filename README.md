@@ -20,6 +20,8 @@ https://huggingface.co/uer/gpt2-chinese-cluecorpussmall/tree/main
 
 ## 运行
 
+batch_size要调小。
+
 ```
 cd ./models/mgca/
 python --gpus 1 --strategy ddp --precision 16 --img_encoder vit_base mgca_module.py

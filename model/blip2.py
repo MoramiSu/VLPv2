@@ -62,8 +62,8 @@ class BLIP2(torch.nn.Module):
         self.glm_proj = nn.Linear(768, 4096).to(self.qformer.parameters().__next__().device).to(self.qformer.parameters().__next__().dtype)
 
     def forward(self, image, **kwargs):
-        # enc = self.vit(image)[0]
-        enc = self.vit(image)
+        enc = self.vit(image)[0]
+        # enc = self.vit(image)
         out = self.qformer(enc)[0]
         return self.glm_proj(out)
     

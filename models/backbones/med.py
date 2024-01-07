@@ -54,7 +54,8 @@ class BertEmbeddings(nn.Module):  # 词嵌入与位置编码
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
 
         # position_ids (1, len position emb) is contiguous in memory and exported when serialized
-        self.register_buffer("position_ids", torch.arange(config.max_position_embeddings).expand((1, -1)))
+        if config.trainable_query == False:
+            self.register_buffer("position_ids", torch.arange(config.max_position_embeddings).expand((1, -1)))
         # register_buffer：增加参数position_ids，该参数与其他参数一致，但不进行更新
         # arange：产生[0,config.max_position_embeddings]，步长为1的一维张量
         # expand：将一维张量转化为二维张量

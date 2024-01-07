@@ -180,13 +180,13 @@ class BertEncoder(nn.Module):
         else:
             self.config = BertConfig.from_json_file(
                 os.path.join(BASE_DIR, "../../configs/qformer_config.json"))  # BERT的一些超参
-            # self.model = BertModel.from_pretrained(
-            # # self.bert_type,
-            #     os.path.dirname(os.path.abspath(__file__)) + '/GPT',
-            #     config=self.config,
-            #     add_pooling_layer=False,
-            # )
-            self.model = BertModel(self.config)
+            self.model = BertModel.from_pretrained(
+            # self.bert_type,
+                os.path.dirname(os.path.abspath(__file__)) + '/GPT',
+                config=self.config,
+                add_pooling_layer=False,
+            )
+            # self.model = BertModel(self.config)
 
             self.embed_0 = LocalEmbedding(self.embedding_dim, hidden_dim, self.output_dim)
             self.embed_1 = LocalEmbedding(self.embedding_dim, hidden_dim, self.embedding_dim)

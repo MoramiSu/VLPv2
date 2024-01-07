@@ -5,6 +5,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 from pytorch_lightning import LightningModule
 from torchmetrics import AUROC, Accuracy
+from torch.nn.modules.normalization import LayerNorm
+from sklearn.metrics import roc_curve
+from sklearn.preprocessing import label_binarize
+import pandas as pd
+import numpy as np
+from constants import *
 
 
 class SSLFineTuner(LightningModule):
@@ -45,9 +51,14 @@ class SSLFineTuner(LightningModule):
             param.requires_grad = False
         self.model_name = model_name
         self.multilabel = multilabel
+        self.fc_norm = LayerNorm(768)
 
         self.linear_layer = SSLEvaluator(
             n_input=in_features, n_classes=num_classes, p=dropout, n_hidden=hidden_dim)
+
+        self.test_logits = []
+        self.test_label = []
+        self.num_classes = num_classes
 
     def on_train_batch_start(self, batch, batch_idx) -> None:
         self.backbone.eval()
@@ -82,6 +93,8 @@ class SSLFineTuner(LightningModule):
 
     def test_step(self, batch, batch_idx):
         loss, logits, y = self.shared_step(batch)
+        self.test_logits.append(F.softmax(logits, dim=1))
+        self.test_label.append(y)
         self.log("test_loss", loss, sync_dist=True)
         if self.multilabel:
             self.test_auc(torch.sigmoid(logits).float(), y.long())
@@ -100,6 +113,10 @@ class SSLFineTuner(LightningModule):
             feats, _ = self.backbone(x)
             # if "vit" in self.model_name:
             #     feats = feats[:, 0]
+            # _, patch_feats =self.backbone(x)
+            # feats = patch_feats.mean(dim=1)  # global pool without cls token
+            # feats = self.fc_norm(feats)
+
 
         # feats, _ = self.backbone(x)
 
@@ -113,6 +130,28 @@ class SSLFineTuner(LightningModule):
             loss = F.cross_entropy(logits.float(), y.long())
 
         return loss, logits, y
+
+    def test_epoch_end(self, outputs) -> None:
+        self.compute_ROC()
+
+    def compute_ROC(self):
+        self.test_logits = torch.vstack(self.test_logits)
+        self.test_label = torch.cat(self.test_label, dim=0)
+        y_true_one_hot = label_binarize(self.test_label.cpu().numpy(), classes=np.arange(self.num_classes))
+
+        # 将预测概率或分数进行合并，作为正例概率
+        y_score_micro = self.test_logits.cpu().view(-1)
+        y_true_micro = torch.tensor(y_true_one_hot).view(-1)
+
+        # 将PyTorch张量转换为NumPy数组
+        y_score_micro_np = y_score_micro.detach().numpy()
+        y_true_micro_np = y_true_micro.detach().numpy()
+
+        # 计算Micro方法的ROC曲线数据
+        fpr_micro, tpr_micro, _ = roc_curve(y_true_micro_np, y_score_micro_np)
+        data = {'fpr_micro': fpr_micro, 'tpr_micro': tpr_micro}
+        df = pd.DataFrame(data)
+        df.to_csv(BUSI_ROC, index=False)
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(

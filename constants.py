@@ -42,6 +42,7 @@ BUSI_DETECTION_VALID_PKL = BUSI_DATA_DIR / 'detection/val.pkl'
 BUSI_SEG_TRAIN_PKL = BUSI_DATA_DIR / 'detection/train.pkl'
 BUSI_SEG_TEST_PKL = BUSI_DATA_DIR / 'detection/test.pkl'
 BUSI_SEG_VALID_PKL = BUSI_DATA_DIR / 'detection/val.pkl'
+BUSI_ROC = DATA_BASE_DIR / '../data/busi_rocdata.csv'
 
 AUIDT_DATA_DIR = DATA_BASE_DIR / 'dataset thyroid'
 AUIDT_IMG_DIR = AUIDT_DATA_DIR / 'files'

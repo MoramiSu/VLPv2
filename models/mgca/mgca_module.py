@@ -367,7 +367,7 @@ class MGCA(LightningModule):
             # loss_local + self.hparams.lambda_3 * loss_proto
         c_loss, q_loss, lm_loss, acc1, acc5 = self(
             batch, batch_idx, "train")
-        loss = lm_loss
+        loss = lm_loss + q_loss + c_loss
 
         log = {
             "train_loss": loss,
@@ -394,7 +394,7 @@ class MGCA(LightningModule):
         c_loss, q_loss, lm_loss, acc1, acc5 = self(
             batch, batch_idx, "valid")
 
-        loss = lm_loss
+        loss = lm_loss + q_loss + c_loss
 
         log = {
             "val_loss": loss,
@@ -476,8 +476,8 @@ class MGCA(LightningModule):
         parser.add_argument("--num_heads", type=int, default=1)
         parser.add_argument("--experiment_name", type=str, default="")
         parser.add_argument("--lambda_0", type=float, default=9)
-        parser.add_argument("--lambda_1", type=float, default=0)
-        parser.add_argument("--lambda_2", type=float, default=0)
+        parser.add_argument("--lambda_1", type=float, default=1)
+        parser.add_argument("--lambda_2", type=float, default=3)
         # parser.add_argument("--lambda_3", type=float, default=1.)
         parser.add_argument("--seed", type=int, default=42)
         parser.add_argument("--bidirectional", action="store_false")

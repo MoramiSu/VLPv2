@@ -32,10 +32,10 @@ def cli_main():
     parser.add_argument("--base_model", type=str,
                         default="resnet50", help="resnet50 or vit")
     parser.add_argument("--ckpt_path", type=str,
-                        default="/home/sutongkun/VLPv2/MGCA/data/ckpts/MGCA/2023_10_17_10_04_50/epoch=3-step=643.ckpt")
+                        default="/home/sutongkun/VLPv2/GLoRIA/data/ckpt/gloria_pretrain_1.0/2023_10_16_21_46_29/epoch=3-step=427.ckpt")
     parser.add_argument("--dataset", type=str, default="siim")
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--batch_size", type=int, default=5)
+    parser.add_argument("--batch_size", type=int, default=8)
     parser.add_argument("--num_workers", type=int, default=16)
     parser.add_argument("--learning_rate", type=float, default=2e-4)
     parser.add_argument("--weight_decay", type=float, default=0.05)
@@ -68,6 +68,8 @@ def cli_main():
     # mgca = MGCA.load_from_checkpoint(args.ckpt_path)
     mgca = MGCA()
     encoder = mgca.img_encoder_q.model
+    # encoder.load_state_dict(torch.load('/home/sutongkun/VLPv2/MRM/output/vit.pth'))
+    # encoder.load_state_dict(torch.load(args.ckpt_path), strict=False)
 
     if args.base_model == "vit":
         args.seg_model = SETRModel(

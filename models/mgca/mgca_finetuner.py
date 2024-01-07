@@ -79,14 +79,20 @@ def cli_main():
     else:
         raise RuntimeError(f"no dataset called {args.dataset}")
 
-    if args.path:
-        model = MGCA.load_from_checkpoint(args.path, strict=False)
-    else:
-        model = MGCA()
-    # model=MGCA()
+    # if args.path:
+    #     model = MGCA.load_from_checkpoint(args.path, strict=False)
+    # else:
+    #     model = MGCA()
+    model=MGCA()
 
     args.model_name = model.hparams.img_encoder
     args.backbone = model.img_encoder_q
+    # sd = torch.load('/home/sutongkun/VLPv2/MRM/output/vit.pth')
+    # from collections import OrderedDict
+    # new_sd = OrderedDict()
+    # for k, v in sd.items():
+    #     new_sd['model.'+k] = v
+    args.backbone.load_state_dict(torch.load('/home/sutongkun/VLPv2/GLoRIA/data/ckpt/gloria_pretrain_1.0/2023_10_17_10_04_50/new.pth'), strict=False)
     args.in_features = args.backbone.feature_dim
     args.num_classes = num_classes
     args.multilabel = multilabel

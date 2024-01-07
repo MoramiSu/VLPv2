@@ -30,7 +30,7 @@ def cli_main():
     parser = ArgumentParser("Finetuning of object detection task for MGCA")
     parser.add_argument("--base_model", type=str, default="resnet_50")
     parser.add_argument("--ckpt_path", type=str,
-                        default="/home/sutongkun/VLPv2/MGCA/data/ckpts/MGCA/2023_09_27_12_19_09/epoch=46-step=7801.ckpt")
+                        default="/home/sutongkun/VLPv2/GLoRIA/data/ckpt/gloria_pretrain_1.0/2023_10_17_10_04_50/new.pth")
     parser.add_argument("--dataset", type=str,
                         default="rsna", help="rsna or object_cxr or busi")
     parser.add_argument("--seed", type=int, default=42)
@@ -73,7 +73,7 @@ def cli_main():
                 new_k = ".".join(k.split(".")[2:])
                 ckpt_dict[new_k] = v
 
-        args.img_encoder.model.load_state_dict(ckpt_dict)
+        msg = args.img_encoder.model.load_state_dict(ckpt_dict)
 
     # Freeze encoder
     for param in args.img_encoder.parameters():
